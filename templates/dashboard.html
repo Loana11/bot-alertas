@@ -100,7 +100,8 @@
                 </div>
                 
                 <div class="text-center mt-2 small text-muted">
-                    Last updated: <span id="updated-{{ stock.symbol }}">{{ stock.last_updated.strftime('%H:%M:%S') if stock.last_updated else 'Never' }}</span>
+                    Last updated: <span id="updated-{{ stock.symbol }}">{{ stock.last_updated_local if stock.last_updated_local else 'Never' }}</span>
+
                 </div>
             </div>
         </div>
