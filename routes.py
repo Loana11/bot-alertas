@@ -3,6 +3,7 @@ from app import db
 from models import Stock, Alert, TelegramConfig
 import yfinance as yf
 import logging
+from datetime import timedelta
 
 bp = Blueprint('main', __name__)
 
@@ -23,7 +24,14 @@ def dashboard():
                 stock.current_price = info['currentPrice']
         except Exception as e:
             logging.error(f"Error fetching price for {stock.symbol}: {e}")
+        # Convertir horario UTC a horario argentino (UTC-3)
     
+    for stock in stocks:
+        if stock.last_updated:
+            stock.last_updated_local = (stock.last_updated - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            stock.last_updated_local = None
+
     return render_template('dashboard.html', stocks=stocks, telegram_configured=bool(telegram_config))
 
 @bp.route('/settings', methods=['GET', 'POST'])
