@@ -130,23 +130,36 @@ def api_stock_prices():
     """API endpoint to get current stock prices"""
     stocks = Stock.query.filter_by(is_active=True).all()
     data = []
-    
+
     for stock in stocks:
         try:
             ticker = yf.Ticker(stock.symbol)
             info = ticker.info
             current_price = info.get('regularMarketPrice', info.get('currentPrice', 0))
-            
+
+            if current_price == 0:
+                raise ValueError(f"Invalid price (0) for {stock.symbol}")
+
             # Update in database
             stock.current_price = current_price
-            
+            stock.last_updated = datetime.utcnow()
+
+            # Estado actual
+            if current_price >= stock.target_price:
+                status = 'target_reached'
+            elif current_price <= stock.stop_loss:
+                status = 'stop_loss'
+            else:
+                status = 'monitoring'
+
             data.append({
                 'symbol': stock.symbol,
                 'current_price': current_price,
                 'target_price': stock.target_price,
                 'stop_loss': stock.stop_loss,
-                'status': 'target_reached' if current_price >= stock.target_price else 'stop_loss' if current_price <= stock.stop_loss else 'monitoring'
+                'status': status
             })
+
         except Exception as e:
             logging.error(f"Error fetching price for {stock.symbol}: {e}")
             data.append({
@@ -156,6 +169,7 @@ def api_stock_prices():
                 'stop_loss': stock.stop_loss,
                 'status': 'error'
             })
-    
+
     db.session.commit()
     return jsonify(data)
+
