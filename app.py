@@ -52,3 +52,11 @@ with app.app_context():
         
     # Register routes
     app.register_blueprint(routes.bp)
+
+from stock_monitor import check_all_stocks
+
+@app.route("/check")
+def check_prices():
+    check_all_stocks()
+    return "Precios revisados"
+
