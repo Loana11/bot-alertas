@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts - Stock Monitor{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="fas fa-bell me-2"></i>Alert History</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Alerts (Last 50)</h5>
+            </div>
+            <div class="card-body">
+                {% if not alerts %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <h5>No Alerts Yet</h5>
+                    <p class="text-muted">Alerts will appear here when stock prices reach your targets or stop losses.</p>
+                </div>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Stock</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td>{{ alert.sent_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td><strong>{{ alert.stock_symbol }}</strong></td>
+                                <td>
+                                    {% if alert.alert_type == 'target' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-bullseye me-1"></i>Target
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-stop-circle me-1"></i>Stop Loss
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="{% if alert.alert_type == 'target' %}text-success{% else %}text-danger{% endif %}">
+                                        ${{ "%.2f"|format(alert.price) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="alert-message">
+                                        {{ alert.message|replace('<b>', '')|replace('</b>', '')|replace('🎯 ', '')|replace('🛑 ', '')|replace('💰 ', '')|replace('💸 ', '') }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if alert.is_sent %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Sent
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>Pending
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Statistics -->
+{% if alerts %}
+<div class="row mt-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ alerts|selectattr('alert_type', 'equalto', 'target')|list|length }}</h3>
+                <p class="mb-0">Target Alerts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3>{{ alerts|selectattr('alert_type', 'equalto', 'stop_loss')|list|length }}</h3>
+                <p class="mb-0">Stop Loss Alerts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3>{{ alerts|selectattr('is_sent', 'equalto', true)|list|length }}</h3>
+                <p class="mb-0">Sent Successfully</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ alerts|selectattr('is_sent', 'equalto', false)|list|length }}</h3>
+                <p class="mb-0">Failed/Pending</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

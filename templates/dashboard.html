@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Stock Monitor{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Stock Monitor Dashboard</h1>
+            <div>
+                {% if not telegram_configured %}
+                    <span class="badge bg-warning me-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Telegram Not Configured
+                    </span>
+                {% else %}
+                    <span class="badge bg-success me-2">
+                        <i class="fab fa-telegram me-1"></i>Telegram Active
+                    </span>
+                {% endif %}
+                <button class="btn btn-primary" onclick="refreshPrices()">
+                    <i class="fas fa-sync me-1" id="refresh-icon"></i>Refresh Prices
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not stocks %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                <h4>No Stocks Configured</h4>
+                <p class="text-muted">Add some stocks to start monitoring their prices.</p>
+                <a href="{{ url_for('main.settings') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add Your First Stock
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row" id="stocks-container">
+    {% for stock in stocks %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card stock-card" data-symbol="{{ stock.symbol }}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title mb-0">{{ stock.symbol }}</h5>
+                    <span class="badge stock-status" id="status-{{ stock.symbol }}">
+                        {% if stock.current_price >= stock.target_price %}
+                            <span class="badge bg-success">Target Reached</span>
+                        {% elif stock.current_price <= stock.stop_loss %}
+                            <span class="badge bg-danger">Stop Loss</span>
+                        {% else %}
+                            <span class="badge bg-info">Monitoring</span>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="price-info">
+                            <div class="price-label">Current</div>
+                            <div class="price-value" id="current-{{ stock.symbol }}">
+                                ${{ "%.2f"|format(stock.current_price) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="price-info">
+                            <div class="price-label text-success">Target</div>
+                            <div class="price-value text-success">
+                                ${{ "%.2f"|format(stock.target_price) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="price-info">
+                            <div class="price-label text-danger">Stop</div>
+                            <div class="price-value text-danger">
+                                ${{ "%.2f"|format(stock.stop_loss) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress mt-3" style="height: 8px;">
+                    {% set range_total = stock.target_price - stock.stop_loss %}
+                    {% set current_position = ((stock.current_price - stock.stop_loss) / range_total * 100) if range_total > 0 else 50 %}
+                    <div class="progress-bar 
+                        {% if stock.current_price >= stock.target_price %}bg-success
+                        {% elif stock.current_price <= stock.stop_loss %}bg-danger
+                        {% else %}bg-info{% endif %}" 
+                        role="progressbar" 
+                        style="width: {{ current_position }}%"
+                        id="progress-{{ stock.symbol }}">
+                    </div>
+                </div>
+                
+                <div class="text-center mt-2 small text-muted">
+                    Last updated: <span id="updated-{{ stock.symbol }}">{{ stock.last_updated.strftime('%H:%M:%S') if stock.last_updated else 'Never' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

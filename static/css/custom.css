@@ -1,0 +1,118 @@
+/* Custom styles for Stock Monitor */
+
+.stock-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stock-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.price-info {
+    padding: 0.5rem 0;
+}
+
+.price-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.price-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+.alert-message {
+    max-width: 300px;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+}
+
+/* Status badges */
+.stock-status {
+    position: relative;
+}
+
+.stock-status .badge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Card animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.stock-card.target-reached {
+    animation: pulse 2s infinite;
+    border-color: var(--bs-success);
+}
+
+.stock-card.stop-loss {
+    animation: pulse 2s infinite;
+    border-color: var(--bs-danger);
+}
+
+/* Loading states */
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(359deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .price-value {
+        font-size: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Table improvements */
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Form improvements */
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Navigation improvements */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.nav-link {
+    transition: color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    color: var(--bs-primary) !important;
+}

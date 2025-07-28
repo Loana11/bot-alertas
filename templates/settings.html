@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Stock Monitor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-cog me-2"></i>Settings</h1>
+    </div>
+</div>
+
+<!-- Telegram Configuration -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fab fa-telegram me-2"></i>Telegram Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="telegram_config">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bot_token" class="form-label">Bot Token</label>
+                            <input type="text" class="form-control" id="bot_token" name="bot_token" 
+                                   value="{{ telegram_config.bot_token if telegram_config else '' }}" 
+                                   placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyzABCDEfghi"
+                                   required>
+                            <div class="form-text">Get your bot token from @BotFather on Telegram</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="chat_id" class="form-label">Chat ID</label>
+                            <input type="text" class="form-control" id="chat_id" name="chat_id" 
+                                   value="{{ telegram_config.chat_id if telegram_config else '' }}" 
+                                   placeholder="123456789"
+                                   required>
+                            <div class="form-text">Your Telegram chat ID or group ID</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Telegram Config
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Stock -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add Stock</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add_stock">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="symbol" class="form-label">Stock Symbol</label>
+                            <input type="text" class="form-control" id="symbol" name="symbol" 
+                                   placeholder="AAPL" style="text-transform: uppercase;" required>
+                            <div class="form-text">Enter the stock ticker symbol</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="target_price" class="form-label">Target Price ($)</label>
+                            <input type="number" class="form-control" id="target_price" name="target_price" 
+                                   step="0.01" min="0" placeholder="150.00" required>
+                            <div class="form-text">Price to trigger buy/sell alert</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="stop_loss" class="form-label">Stop Loss ($)</label>
+                            <input type="number" class="form-control" id="stop_loss" name="stop_loss" 
+                                   step="0.01" min="0" placeholder="120.00" required>
+                            <div class="form-text">Price to trigger stop loss alert</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>Add Stock
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Stocks -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Current Stocks</h5>
+            </div>
+            <div class="card-body">
+                {% if not stocks %}
+                <p class="text-muted">No stocks configured yet.</p>
+                {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Current Price</th>
+                                <th>Target Price</th>
+                                <th>Stop Loss</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks %}
+                            <tr>
+                                <td><strong>{{ stock.symbol }}</strong></td>
+                                <td>${{ "%.2f"|format(stock.current_price) }}</td>
+                                <td class="text-success">${{ "%.2f"|format(stock.target_price) }}</td>
+                                <td class="text-danger">${{ "%.2f"|format(stock.stop_loss) }}</td>
+                                <td>
+                                    {% if stock.current_price >= stock.target_price %}
+                                        <span class="badge bg-success">Target Reached</span>
+                                    {% elif stock.current_price <= stock.stop_loss %}
+                                        <span class="badge bg-danger">Stop Loss</span>
+                                    {% else %}
+                                        <span class="badge bg-info">Monitoring</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.delete_stock', stock_id=stock.id) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Are you sure you want to remove {{ stock.symbol }} from monitoring?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('symbol').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}
