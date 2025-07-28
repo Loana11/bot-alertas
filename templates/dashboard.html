@@ -49,14 +49,17 @@
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <h5 class="card-title mb-0">{{ stock.symbol }}</h5>
                     <span class="badge stock-status" id="status-{{ stock.symbol }}">
-                        {% if stock.current_price >= stock.target_price %}
+                        {% if stock.status == 'target_reached' %}
                             <span class="badge bg-success">Target Reached</span>
-                        {% elif stock.current_price <= stock.stop_loss %}
+                        {% elif stock.status == 'stop_loss' %}
                             <span class="badge bg-danger">Stop Loss</span>
-                        {% else %}
+                        {% elif stock.status == 'monitoring' %}
                             <span class="badge bg-info">Monitoring</span>
+                        {% else %}
+                            <span class="badge bg-warning">Error</span>
                         {% endif %}
                     </span>
+
                 </div>
                 
                 <div class="row text-center">
