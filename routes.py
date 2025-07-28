@@ -7,32 +7,24 @@ from datetime import timedelta
 
 bp = Blueprint('main', __name__)
 
+
 @bp.route('/')
 def dashboard():
-    """Main dashboard showing all stocks and their status"""
+    from datetime import datetime
     stocks = Stock.query.filter_by(is_active=True).all()
     telegram_config = TelegramConfig.query.first()
-    
-    # Update current prices for display
+
     for stock in stocks:
-        try:
-            ticker = yf.Ticker(stock.symbol)
-            info = ticker.info
-            if 'regularMarketPrice' in info:
-                stock.current_price = info['regularMarketPrice']
-            elif 'currentPrice' in info:
-                stock.current_price = info['currentPrice']
-        except Exception as e:
-            logging.error(f"Error fetching price for {stock.symbol}: {e}")
-        # Convertir horario UTC a horario argentino (UTC-3)
-    
-    for stock in stocks:
-        if stock.last_updated:
-            stock.last_updated_local = (stock.last_updated - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')
+        # Evaluar el estado según los precios actualizados
+        if stock.current_price >= stock.target_price:
+            stock.status = "target_reached"
+        elif stock.current_price <= stock.stop_loss:
+            stock.status = "stop_loss"
         else:
-            stock.last_updated_local = None
+            stock.status = "monitoring"
 
     return render_template('dashboard.html', stocks=stocks, telegram_configured=bool(telegram_config))
+
 
 @bp.route('/settings', methods=['GET', 'POST'])
 def settings():
