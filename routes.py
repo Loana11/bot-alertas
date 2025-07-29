@@ -6,16 +6,13 @@ import logging
 from datetime import timedelta
 from stock_monitor import send_telegram_message
 
-bp = Blueprint('routes', __name__)
+bp = Blueprint('main', __name__)
 
 @bp.route('/test-alert')
 def test_alert():
     success = send_telegram_message("🔔 Test de alerta desde Railway.")
     return "Mensaje enviado" if success else "Fallo el envío"
-
-bp = Blueprint('main', __name__)
-
-
+    
 @bp.route('/')
 def dashboard():
     from datetime import datetime
