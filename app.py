@@ -14,8 +14,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
-from routes import bp
-app.register_blueprint(bp)
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
