@@ -30,6 +30,17 @@ def dashboard():
 
     return render_template('dashboard.html', stocks=stocks, telegram_configured=bool(telegram_config))
     
+@bp.route('/debug_price/<symbol>')
+def debug_price(symbol):
+    import yfinance as yf
+    try:
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+        price = info.get('regularMarketPrice', info.get('currentPrice', 0))
+        return f"{symbol.upper()} = {price}"
+    except Exception as e:
+        return f"Error: {e}"
+    
 @bp.route('/check')
 def check_prices():
     from stock_monitor import check_all_stocks
