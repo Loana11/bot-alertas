@@ -142,6 +142,7 @@ def manual_check():
 @bp.route('/api/stock_prices')
 def api_stock_prices():
     """API endpoint to get current stock prices"""
+    from datetime import datetime
     stocks = Stock.query.filter_by(is_active=True).all()
     data = []
 
@@ -174,18 +175,19 @@ def api_stock_prices():
                 'status': status
             })
 
-    except Exception as e:
-        import traceback
-        logging.error(f"❌ Error fetching price for {stock.symbol}: {e}")
-        traceback.print_exc()
-        data.append({
-            'symbol': stock.symbol,
-            'current_price': stock.current_price,
-            'target_price': stock.target_price,
-            'stop_loss': stock.stop_loss,
-            'status': 'error'
+        except Exception as e:
+            import traceback
+            logging.error(f"❌ Error fetching price for {stock.symbol}: {e}")
+            traceback.print_exc()
+            data.append({
+                'symbol': stock.symbol,
+                'current_price': stock.current_price,
+                'target_price': stock.target_price,
+                'stop_loss': stock.stop_loss,
+                'status': 'error'
             })
 
     db.session.commit()
     return jsonify(data)
+
 
