@@ -129,15 +129,41 @@ def alerts():
 
 @bp.route('/manual_check')
 def manual_check():
-    """Manually trigger price check"""
+    """Manually trigger price check and return updated data as JSON"""
+    from stock_monitor import check_all_stocks
+    from datetime import datetime
+    import yfinance as yf
+
     try:
-        from stock_monitor import check_all_stocks
         check_all_stocks()
-        flash('Manual price check completed successfully!', 'success')
+
+        # Luego de ejecutar el chequeo, devolvemos los datos actualizados
+        stocks = Stock.query.filter_by(is_active=True).all()
+        data = []
+
+        for stock in stocks:
+            # Estado actual basado en precios actualizados
+            if stock.current_price >= stock.target_price:
+                status = 'target_reached'
+            elif stock.current_price <= stock.stop_loss:
+                status = 'stop_loss'
+            else:
+                status = 'monitoring'
+
+            data.append({
+                'symbol': stock.symbol,
+                'current_price': stock.current_price,
+                'target_price': stock.target_price,
+                'stop_loss': stock.stop_loss,
+                'status': status
+            })
+
+        return jsonify(data)
+
     except Exception as e:
-        flash(f'Error during manual check: {str(e)}', 'error')
-    
-    return redirect(url_for('main.dashboard'))
+        logging.error(f"Error during manual check: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @bp.route('/api/stock_prices')
 def api_stock_prices():
