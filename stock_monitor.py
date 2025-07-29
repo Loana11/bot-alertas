@@ -102,9 +102,10 @@ def check_all_stocks():
                             alert_type="target",
                             price=current_price,
                             message=msg,
-                            timestamp=datetime.utcnow(),
+                            sent_at=datetime.utcnow(),  # ✅ corregido
                             is_sent=True
                         )
+
                         db.session.add(alert)
                         db.session.commit()
                         logger.info(f"[ALERT] Target enviada para {stock.symbol}")
@@ -118,9 +119,10 @@ def check_all_stocks():
                             alert_type="stop_loss",
                             price=current_price,
                             message=msg,
-                            timestamp=datetime.utcnow(),
+                            sent_at=datetime.utcnow(),  # ✅ corregido
                             is_sent=True
                         )
+
                         db.session.add(alert)
                         db.session.commit()
                         logger.info(f"[ALERT] Stop loss enviada para {stock.symbol}")
