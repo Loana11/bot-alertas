@@ -4,7 +4,7 @@ function refreshPrices() {
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.add('fa-spin');
     
-    fetch('/api/stock_prices')
+    fetch('/manual_check')
         .then(response => response.json())
         .then(data => {
             updateStockCards(data);
