@@ -24,6 +24,12 @@ def dashboard():
             stock.status = "monitoring"
 
     return render_template('dashboard.html', stocks=stocks, telegram_configured=bool(telegram_config))
+    
+@bp.route('/check')
+def check_prices():
+    from stock_monitor import check_all_stocks
+    check_all_stocks()
+    return "Precios revisados"
 
 
 @bp.route('/settings', methods=['GET', 'POST'])
