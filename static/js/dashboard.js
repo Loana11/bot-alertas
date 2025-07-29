@@ -97,12 +97,31 @@ document.getElementById('manual-check-btn').addEventListener('click', function()
         });
 });
 
-// Start auto-refresh when page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     startAutoRefresh();
-    
-    // Stop auto-refresh when page is not visible
-    document.addEventListener('visibilitychange', function() {
+
+    // Nuevo botón: ejecuta manual_check y actualiza la vista
+    const manualCheckBtn = document.getElementById('manual-check-btn');
+    if (manualCheckBtn) {
+        manualCheckBtn.addEventListener('click', function () {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.classList.add('fa-spin');
+
+            fetch('/manual_check')
+                .then(response => response.json())
+                .then(data => {
+                    updateStockCards(data);
+                    refreshIcon.classList.remove('fa-spin');
+                })
+                .catch(error => {
+                    console.error('Error ejecutando manual_check:', error);
+                    refreshIcon.classList.remove('fa-spin');
+                });
+        });
+    }
+
+    // Visibilidad
+    document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             stopAutoRefresh();
         } else {
