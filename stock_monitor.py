@@ -29,7 +29,7 @@ def send_telegram_message(message: str) -> bool:
     Primero busca TOKEN/CHAT_ID en vars de entorno; si no están,
     usa la tabla TelegramConfig de la DB.
     """
-    token  = os.getenv("TELEGRAM_BOT_TOKEN")
+    token   = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
     if token and chat_id:
@@ -39,24 +39,28 @@ def send_telegram_message(message: str) -> bool:
         if not cfg or not cfg.is_active:
             logger.error("⚠️ No existe config de Telegram ni en ENV ni en DB")
             return False
-        token  = cfg.bot_token
+        token   = cfg.bot_token
         chat_id = cfg.chat_id
         logger.info("📡 Usando configuración de Telegram desde DB")
 
-    url  = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = {
+    url     = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
         "chat_id":    chat_id,
         "text":       message,
         "parse_mode": "HTML",
     }
 
     try:
-        resp = requests.post(url, data=data, timeout=10)
-        resp.raise_for_status()
+        # Enviar como JSON para asegurar Content-Type correcto
+        resp = requests.post(url, json=payload, timeout=10)
+        if resp.status_code != 200:
+            # Se loguea el cuerpo para ver error detallado
+            logger.error(f"Telegram HTTP {resp.status_code} – {resp.text}")
+            return False
         logger.info("✅ Mensaje de Telegram enviado")
         return True
     except Exception as e:
-        logger.exception(f"❌ Error enviando Telegram: {e}")
+        logger.exception(f"❌ Excepción enviando Telegram: {e}")
         return False
 
 
