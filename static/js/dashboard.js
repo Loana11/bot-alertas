@@ -80,6 +80,22 @@ function stopAutoRefresh() {
         clearInterval(refreshTimer);
     }
 }
+// Nuevo botón que llama a manual_check y actualiza la vista
+document.getElementById('manual-check-btn').addEventListener('click', function() {
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.add('fa-spin');
+
+    fetch('/manual_check')
+        .then(response => response.json())
+        .then(data => {
+            updateStockCards(data);  // usa la misma lógica visual que refreshPrices()
+            refreshIcon.classList.remove('fa-spin');
+        })
+        .catch(error => {
+            console.error('Error en manual_check:', error);
+            refreshIcon.classList.remove('fa-spin');
+        });
+});
 
 // Start auto-refresh when page loads
 document.addEventListener('DOMContentLoaded', function() {
