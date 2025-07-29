@@ -1,3 +1,12 @@
+import logging
+
+# 1. Configura el logger raíz para que INFO y superiores vayan a stdout
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)s %(name)s %(message)s")
+
+# 2. Eleva el nivel de yfinance para que no inunde tus logs
+logging.getLogger("yfinance").setLevel(logging.WARNING)
+
 import os
 import logging
 from flask import Flask
