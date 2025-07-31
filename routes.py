@@ -68,41 +68,45 @@ def settings():
             
             flash('Telegram configuration updated successfully!', 'success')
         
-        elif action == 'add_stock':
-            symbol = request.form.get('symbol').upper()
-            target_price = float(request.form.get('target_price'))
-            stop_loss = float(request.form.get('stop_loss'))
-            
-            # Validate stock symbol
-            try:
-                ticker = yf.Ticker(symbol)
-                info = ticker.info
-                if 'regularMarketPrice' not in info and 'currentPrice' not in info:
-                    raise ValueError("Invalid stock symbol")
-                    
-                current_price = info.get('regularMarketPrice', info.get('currentPrice', 0))
-                
-                # Check if stock already exists
-                existing_stock = Stock.query.filter_by(symbol=symbol).first()
-                if existing_stock:
-                    existing_stock.target_price = target_price
-                    existing_stock.stop_loss = stop_loss
-                    existing_stock.current_price = current_price
-                    existing_stock.is_active = True
-                else:
-                    stock = Stock(
-                        symbol=symbol,
-                        target_price=target_price,
-                        stop_loss=stop_loss,
-                        current_price=current_price
-                    )
-                    db.session.add(stock)
-                
-                db.session.commit()
-                flash(f'Stock {symbol} added/updated successfully!', 'success')
-                
-            except Exception as e:
-                flash(f'Error adding stock {symbol}: {str(e)}', 'error')
+elif action == 'add_stock':
+    symbol = request.form.get('symbol').upper()
+    target_price = float(request.form.get('target_price'))
+    stop_loss = float(request.form.get('stop_loss'))
+    description = request.form.get('description', '')  # 👈 NUEVO
+
+    # Validate stock symbol
+    try:
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+        if 'regularMarketPrice' not in info and 'currentPrice' not in info:
+            raise ValueError("Invalid stock symbol")
+
+        current_price = info.get('regularMarketPrice', info.get('currentPrice', 0))
+
+        # Check if stock already exists
+        existing_stock = Stock.query.filter_by(symbol=symbol).first()
+        if existing_stock:
+            existing_stock.target_price = target_price
+            existing_stock.stop_loss = stop_loss
+            existing_stock.current_price = current_price
+            existing_stock.description = description  # 👈 NUEVO
+            existing_stock.is_active = True
+        else:
+            stock = Stock(
+                symbol=symbol,
+                target_price=target_price,
+                stop_loss=stop_loss,
+                current_price=current_price,
+                description=description  # 👈 NUEVO
+            )
+            db.session.add(stock)
+
+        db.session.commit()
+        flash(f'Stock {symbol} added/updated successfully!', 'success')
+
+    except Exception as e:
+        flash(f'Error adding stock {symbol}: {str(e)}', 'error')
+
         
         return redirect(url_for('main.settings'))
     
