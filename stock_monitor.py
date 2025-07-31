@@ -96,6 +96,8 @@ def check_all_stocks():
                 # Target
                 if stock.target_price and current_price >= stock.target_price:
                     msg = f"🎯 <b>{stock.symbol}</b> alcanzó target: {current_price}"
+                    if stock.description:
+                        msg += f"\n📝 {stock.description}"
                     if send_telegram_message(msg):
                         alert = Alert(
                             stock_symbol=stock.symbol,
@@ -113,6 +115,8 @@ def check_all_stocks():
                 # Stop loss
                 if stock.stop_loss and current_price <= stock.stop_loss:
                     msg = f"💔 <b>{stock.symbol}</b> tocó stop loss: {current_price}"
+                    if stock.description:
+                        msg += f"\n📝 {stock.description}"
                     if send_telegram_message(msg):
                         alert = Alert(
                             stock_symbol=stock.symbol,
