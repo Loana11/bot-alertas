@@ -124,6 +124,20 @@ def delete_stock(stock_id):
     db.session.commit()
     flash(f'Stock {stock.symbol} removed from monitoring.', 'info')
     return redirect(url_for('main.settings'))
+@bp.route('/edit_stock/<int:stock_id>', methods=['GET', 'POST'])
+def edit_stock(stock_id):
+    stock = Stock.query.get_or_404(stock_id)
+
+    if request.method == 'POST':
+        stock.target_price = float(request.form.get('target_price'))
+        stock.stop_loss = float(request.form.get('stop_loss'))
+        stock.description = request.form.get('description', '')
+
+        db.session.commit()
+        flash(f'Stock {stock.symbol} updated successfully!', 'success')
+        return redirect(url_for('main.settings'))
+
+    return render_template('edit_stock.html', stock=stock)
 
 @bp.route('/alerts')
 def alerts():
