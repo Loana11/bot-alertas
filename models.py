@@ -17,6 +17,7 @@ class Stock(db.Model):
     current_price = db.Column(db.Float, default=0.0)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
+    description = db.Column(db.String(200), default="", nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
